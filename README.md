@@ -133,36 +133,253 @@ untuk melakukan pengecekan konfigurasi maka pada client (nakula/sadewa) bisa dil
 ---
 ## SOAL 6
 ### Pertanyaan
+Agar dapat tetap dihubungi ketika DNS Server Yudhistira bermasalah, buat juga Werkudara sebagai DNS Slave untuk domain utama.
 
 ### Solusi
+kami melakukan edit pada `/etc/bind/named.conf.local` di yudhistira dan sesuaikan dengan syntax berikut
+
+![img](image/6-1.png)
+![img](image/6-2.png)
+
+kita mengubah pada kedua dns, kemudian lakukan 
+```
+service bind9 restart
+```
+selanjutnya kita melakukan setting pada dns slave yaitu werkudara dengan mengunduh bind9 dengan cara 
+```
+apt-get update
+``` 
+kemudian
+```
+apt-get install bind9 -y
+``` 
+dan selanjutnya menambahkan pada `/etc/bind/named.conf.local` pada werkudara dengan
+
+![img](image/6-3.png)
+
+dengan kedua dns, karena kita mengubah pada keduanya. kemudian lakukan 
+```
+service bind9 restart
+```
+lakukan
+```
+service bind9 stop
+```
+pada yudhistira untuk melakukan cek apakah bisa mengakses melalui dns slave yang sudah dibuat. pada client (nakula/sadewa) masukkan 2 nameserver yaitu ip dari yudhistira dan juga ip dari werkudara dengan 
+```
+nano /etc/resolv.conf
+```
+![img](image/6-4.png)
+
+kita melakukan ping ke kedua dns pada client sadewa. dan ping berhasil meskipun bind9 pada yudhistira di stop yang berarti konfigurasi dns slave berhasil
+
+![img](image/6-5.png)
+![img](image/6-6.png)
 
 ---
 ## SOAL 7
 ### Pertanyaan
+Seperti yang kita tahu karena banyak sekali informasi yang harus diterima, buatlah subdomain khusus untuk perang yaitu baratayuda.abimanyu.yyy.com dengan alias www.baratayuda.abimanyu.yyy.com yang didelegasikan dari Yudhistira ke Werkudara dengan IP menuju ke Abimanyu dalam folder Baratayuda.
 
 ### Solusi
+Kita melakukan konfigurasi untuk kasus ini adalah delegasi subdomain, Pada yudhistira kita melakukan edit file `/etc/bind/abimanyu/abimanyu.b07.com` dan mengubah menjadi seperti di bawah ini
+
+![img](image/7-1.png)
+
+keterangan ns untuk delegasi subdomain yang dimana baratayuda adalah subdomain yang akan didelegasikan. Kemudian kita melakukan edit file `/etc/bind/named.conf.options`
+
+![img](image/7-2.png)
+
+melakukan comment pada `dnssec-validation auto;` dan menambahkan `allow-query{any;};`
+kemudian pada `/etc/bind/named.conf.local`
+
+![img](image/7-3.png)
+
+menambahkan allow-transfer dengan ip werkudara, namun sebelumnya sudah di set jadi tidak dilakukan perubahan karena sudah sesuai
+lakukan
+```
+service bind9 stop
+```
+Pada Werkudara edit file `/etc/bind/named.conf.options` sama persis seperti poin nomor 3 dengan melakukan comment pada `dnssec-validation auto;` dan menambahkan `allow-query{any;};`
+
+![img](image/7-4.png)
+
+lalu kami melakukan edit file `/etc/bind/named.conf.local` pada werkudara menjadi seperti
+
+![img](image/7-5.png)
+
+sesuai ketentuan dengan folder baratayuda. buat directory sesuai folder 
+```
+mkdir /etc/bind/baratayuda
+```
+kemudian kita melakukan copy pada db.local dengan 
+```
+cp /etc/bind/db.local /etc/bind/baratayuda/baratayuda.abimanyu.b07.com
+```
+kemudian kita melakukan edit pada file `baratayuda.abimanyu.b07.com`
+
+![img](image/7-6.png)
+
+dengan menambahkan alias www pada dns tersebut dan sesuai ketentuan dengan ip mengarah ke abimanyu. lakukan
+```
+service bind9 stop
+```
+kita melakukan testing pada client (nakula/sadewa) pada delegasi subdomain yang telah dilakukan dengan dan tanpa alias (www)
+
+![img](image/7-7.png)
 
 ---
 ## SOAL 8
 ### Pertanyaan
+Untuk informasi yang lebih spesifik mengenai Ranjapan Baratayuda, buatlah subdomain melalui Werkudara dengan akses rjp.baratayuda.abimanyu.yyy.com dengan alias www.rjp.baratayuda.abimanyu.yyy.com yang mengarah ke Abimanyu.
 
 ### Solusi
+pada kasus ini kita melakukan pemberian subdomain namun pada subdomain hasil delegasi sebelumnya dengan menambahkan rjp.dan alias www. kita melakukan perubahan pada file `baratayuda.abimanyu.b07.com` dengan
+```
+nano /etc/bind/baratayuda/baratayuda.abimanyu.b07.com
+```
+![img](image/8-1.png)
+
+disini kita menambahkan subdomain sesuai ketentuan yaitu subdomain rjp dan memberikan alias www.rjp untuk CNAME yang di set menuju subdomain sebelumnya. lakukan
+```
+service bind9 stop
+```
+kita melakukan test ping dengan subdomain dan alias yang diberikan
+
+![img](image/8-2.png)
 
 ---
 ## SOAL 9
 ### Pertanyaan
+Arjuna merupakan suatu Load Balancer Nginx dengan tiga worker (yang juga menggunakan nginx sebagai webserver) yaitu Prabakusuma, Abimanyu, dan Wisanggeni. Lakukan deployment pada masing-masing worker.
 
 ### Solusi
+pertama-kita akan melakukan setup pada worker, disini kita ada 3 worker yang akan digunakan, yaitu, prabukusuma, abimanyu, dan wisanggeni.
+
+![img](image/9-1.png)
+
+kita install lalu setup Nginx dan PHP pada setiap worker yang digunakan dengan
+```
+apt-get update && apt install nginx php php-fpm -y
+```
+buat directory yang sama pada setiap worker dengan nama yang sama agar memudahkan setup dengan nama jarkom dengan cara
+```
+mkdir /var/www/jarkom
+```
+buat file index.php dan masukkan file echo seperti pada gambar berikut pada file dengan cara
+```
+nano index.php
+```
+pastikan dijalankan pada directory tersebut.
+
+![img](image/9-2.png)
+
+note : bedakan nama “prabukusuma” sesuai dengan lokasi setup.
+
+selanjutnya kita melakukan konfigurasi pada Nginx, masuk ke direktori `/etc/nginx/sites-available` lalu buat file baru dengan nama jarkom atau langsung menggunakan
+```
+touch /etc/nginx/sites-available/jarkom
+```
+jalankan
+```
+nano /etc/nginx/sites-available/jarkom
+```
+kemudian isikan seperti berikut
+
+![img](image/9-3.png)
+![img](image/9-4.png)
+
+dengan memberikan server_name sesuai ip worker yang sedang di setup, dan root sesuai dengan directory yang telah di set sebelumnya. simpan kemudian lakukan sm link dengan cara 
+```
+ln -s /etc/nginx/sites-available/jarkom /etc/nginx/sites-enabled
+```
+disini kita mendapati error setelah mencoba yaitu muncul default page, namun kita menambahkan 1 command untuk mengatasi hal tersebut dengan cara 
+```
+rm -rf /etc/nginx/sites-enabled/default
+```
+lakukan
+```
+ervice php7.2-fpm start
+```
+dan juga lakukan
+```
+service nginx restart
+```
+kita melakukan pengecekan pada nginx dengan cara
+```
+nginx -t
+```
+dan apabila muncul seperti contoh berikut maka berhasil.
+
+![img](image/9-5.png)
+
+kita lakukan juga pada worker yang lain. kemudian kita melakukan setup pada load balancer yang dimana disini adalah arjuna dengan cara membuat file directory pada `/etc/nginx/sites-available` dengan nama `lb-jarkom` dengan cara
+```
+touch /etc/nginx/sites-available/lb-jarkom
+```
+kemudian kita mengisikan sebagai berikut untuk menghandle ketiga worker yang telah di setup sebelumnya
+
+![img](image/9-6.png)
+
+dengan server masing masing dari ip worker yang telah di setup, beri nama juga pada server name untuk akses poin. kita simpan lalu buat symlink dengan cara
+```
+ln -s /etc/nginx/sites-available/lb-jarkom /etc/nginx/sites-enabled
+```
+lakukan
+```
+service nginx restart
+```
+kita lakukan pengetesan pada client (nakula/sadewa) apakah sudah dapat diakses atau belum dengan menggunakan command
+```
+lynx arjuna.b07.com
+```
+dan akan muncul halaman seperti dibawah, yang apabila di refresh (ctrl + r) maka akan berganti ganti halaman antar worker
+
+![img](image/9-7.png)
+![img](image/9-8.png)
+![img](image/9-9.png)
+
+apabila salah satu worker melakukan stop nginx, maka halaman tidak akan muncul
 
 ---
 ## SOAL 10
 ### Pertanyaan
+ Kemudian gunakan algoritma Round Robin untuk Load Balancer pada Arjuna. Gunakan server_name pada soal nomor 1. Untuk melakukan pengecekan akses alamat web tersebut kemudian pastikan worker yang digunakan untuk menangani permintaan akan berganti ganti secara acak. Untuk webserver di masing-masing worker wajib berjalan di port 8001-8003. Contoh
+- Prabakusuma:8001
+- Abimanyu:8002
+- Wisanggeni:8003
+
 
 ### Solusi
+pada sebelumnya, karena default kita sudah menggunakan Round Robin pada load balancer Arjuna, disini kita hanya melakukan set port masing masing sesuai ketentuan yang diberikan, akses masing masing file jarkom di worker masing masing pada site available dengan cara
+```
+nano /etc/nginx/sites-available/jarkom
+```
+kemudian ubah pada listen sesuai ketentuan dari masing masing worker.
+
+![img](image/10-1.png)
+
+ubah juga pada abimanyu dan wisanggeni. lakukan
+```
+service nginx restart
+```
+pada masing masing worker setelah kita lakukan perubahan, kemudian pada load balancer, buka file `lb-jarkom` pada `sites-available` dan ubah pada server dengan menambahkan port yang telah kita set
+
+![img](image/10-2.png)
+
+sesuaikan port dengan masing masing worker, lakukan
+```
+service nginx restart
+```
+kita lakukan lynx pada link yang sama pada client yang sudah menggunakan port, apabila muncul berarti setup berhasil
+
+![img](image/10-3.png)
 
 ---
 ## SOAL 11
 ### Pertanyaan
+Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abimanyu dengan web server www.abimanyu.yyy.com. Pertama dibutuhkan web server dengan DocumentRoot pada /var/www/abimanyu.yyy
+
 
 ### Solusi
 
