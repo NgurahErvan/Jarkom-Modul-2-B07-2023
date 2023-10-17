@@ -597,32 +597,46 @@ sehingga akan muncul error custom seperti pada nomor 14, atau seperti berikut
 ---
 ## SOAL 16
 ### Pertanyaan
+Buatlah suatu konfigurasi virtual host agar file asset www.parikesit.abimanyu.yyy.com/public/js menjadi 
+www.parikesit.abimanyu.yyy.com/js 
 
 ### Solusi
+ditambahin dikit di abimanyu nano /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf
 
+cara ngetest nya lynx parikesit.abimanyu.b07.com/js
 ---
 ## SOAL 17
 ### Pertanyaan
+Agar aman, buatlah konfigurasi agar www.rjp.baratayuda.abimanyu.yyy.com hanya dapat diakses melalui port 14000 dan 14400.
 
 ### Solusi
+menambahkan 1 file di nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b07.com.
 
+kemudian cara ngetestnya cuman lynx www.rjp.baratayuda.abimanyu.b07.com maka akan mengarah langsung ke website sedangkan jika diakses langsung tanpa port maka akan mengarah ke page default
 ---
 ## SOAL 18
 ### Pertanyaan
+Untuk mengaksesnya buatlah autentikasi username berupa “Wayang” dan password “baratayudayyy” dengan yyy merupakan kode kelompok. Letakkan DocumentRoot pada /var/www/rjp.baratayuda.abimanyu.yyy.
 
 ### Solusi
+pertama tama caranya username dan password sudah disimpan ke /etc/apache2/.htpasswd menggunakan `htpasswd -cb /etc/apache2/.htpasswd Wayang baratayudab07`
 
+cara ngetestnya sama kaya no 17 tapi kita perlu melakukan sinkronasi dulu dari username dan password
 ---
 ## SOAL 19
 ### Pertanyaan
-
+Buatlah agar setiap kali mengakses IP dari Abimanyu akan secara otomatis dialihkan ke www.abimanyu.yyy.com (alias)
 ### Solusi
 
+caranya tinggal tambahin  redirect permanent ke `nano abimanyu.b07.com.conf`
+ngetest nya pake ini lynx 10.12.3.3 kalau sudah mengarah ke http harusnya sudah aman
 ---
 ## SOAL 20
 ### Pertanyaan
+Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
 
 ### Solusi
+
 
 
 
