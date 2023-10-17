@@ -601,43 +601,112 @@ Buatlah suatu konfigurasi virtual host agar file asset www.parikesit.abimanyu.yy
 www.parikesit.abimanyu.yyy.com/js 
 
 ### Solusi
-ditambahin dikit di abimanyu nano /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf
+Peratama tama, caranya sangat sederhana kita harus menambahkan alias di node abimanyu `nano /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf`
 
-cara ngetest nya lynx parikesit.abimanyu.b07.com/js
+```
+Alias "/js" "/var/www/parikesit.abimanyu.b07/public/js"
+```
+
+kemudian kita hanya perlu membuka `lynx parikesit.abimanyu.b07.com/js` pada client
+
+<img width="524" alt="16" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/e53edff5-7285-48d3-9a11-fe99f4df070d">
+
 ---
 ## SOAL 17
 ### Pertanyaan
 Agar aman, buatlah konfigurasi agar www.rjp.baratayuda.abimanyu.yyy.com hanya dapat diakses melalui port 14000 dan 14400.
 
 ### Solusi
-menambahkan 1 file di nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b07.com.
+pertama tama, kita harus menambahkan konfigurasi pada `nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b07.com.conf`
 
-kemudian cara ngetestnya cuman lynx www.rjp.baratayuda.abimanyu.b07.com maka akan mengarah langsung ke website sedangkan jika diakses langsung tanpa port maka akan mengarah ke page default
+kemudian kita hanya perlu membuka `lynx www.rjp.baratayuda.abimanyu.b07.com:1400` atau `lynx www.rjp.baratayuda.abimanyu.b07.com:1440`  maka akan mengarah langsung ke website sedangkan jika diakses langsung tanpa port maka akan mengarah ke page default
+
+<img width="449" alt="18 3" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/77033716-6e90-40b3-9c96-6778ded77f63">
+
+
 ---
 ## SOAL 18
 ### Pertanyaan
 Untuk mengaksesnya buatlah autentikasi username berupa “Wayang” dan password “baratayudayyy” dengan yyy merupakan kode kelompok. Letakkan DocumentRoot pada /var/www/rjp.baratayuda.abimanyu.yyy.
 
 ### Solusi
-pertama tama caranya username dan password sudah disimpan ke /etc/apache2/.htpasswd menggunakan `htpasswd -cb /etc/apache2/.htpasswd Wayang baratayudab07`
+pertama tama caranya username dan password harus disimpan ke /etc/apache2/.htpasswd menggunakan 
+```
+htpasswd -cb /etc/apache2/.htpasswd Wayang baratayudab07
+```
+kemudian pada file `nano /etc/apache2/sites-available/rjp.baratayuda.abimanyu.b07.com.conf` kita perlu menambahkan
+```
+<Directory /var/www/rjp.baratayuda.abimanyu.b07>
+                AuthType Basic
+                AuthName "Authentication Required"
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+        </Directory>
+```
 
-cara ngetestnya sama kaya no 17 tapi kita perlu melakukan sinkronasi dulu dari username dan password
+kemudian kita hanya perlu memeriksa di client dengan `lynx www.rjp.baratayuda.abimanyu.b07.com` kita diminta untuk memasukan username Wayang dengan password baratayudab07 sehingga kita bisa mendapatkan akses masuk
+kita diminta untuk mengisi username terlebih dahulu
+<img width="950" alt="18 1" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/f3c6135e-94bc-43d5-8e81-6263b1c4501e">
+
+kemudian kita diminta memasukan password
+<img width="938" alt="18 2" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/25c57ade-c2fb-4d10-a1ea-ee5e15984af4">
+
+setelah berhasil maka akan masuk kedalam rjp
+<img width="449" alt="18 3" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/4045a0e6-0ba3-4778-99a6-ef928f241ff9">
+
 ---
 ## SOAL 19
 ### Pertanyaan
 Buatlah agar setiap kali mengakses IP dari Abimanyu akan secara otomatis dialihkan ke www.abimanyu.yyy.com (alias)
 ### Solusi
-
 caranya tinggal tambahin  redirect permanent ke `nano abimanyu.b07.com.conf`
-ngetest nya pake ini lynx 10.12.3.3 kalau sudah mengarah ke http harusnya sudah aman
+```
+<VirtualHost *:80>
+        ServerName 10.12.3.3
+        Redirect permanent / http://www.abimanyu.b07.com/
+</VirtualHost>
+```
+Selanjutnya kita bisa mencoba menjalankan `lynx 10.12.3.3` kalau sudah mengarah ke http artinya benar
+<img width="238" alt="19 1" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/6a58782d-350e-43e1-9f3a-45496322eb28">
+
+<img width="498" alt="19 2" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/d663a52b-6d7a-4138-97b2-5d4f5fab216e">
+
+
 ---
 ## SOAL 20
 ### Pertanyaan
 Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
 
 ### Solusi
+Pertama-tama Abimanyu Jangan lupa untuk menjalankan perintah berikut agar dapat melakukan rewrite modul
+```
+a2enmod rewrite
+```
+Kemudian kita hanya perlu menambahkan perintah ini untuk melakuka rewrite pada parikesit.abimanyu.b07 pada `/var/www/parikesit.abimanyu.b07/.htaccess`
+```
+RewriteEngine On
+RewriteCond %{REQUEST_URI} ^/public/images/(.*)(abimanyu)(.*\.(png|jpg))
+RewriteCond %{REQUEST_URI} !/public/images/abimanyu.png
+RewriteRule abimanyu http://parikesit.abimanyu.a09.com/public/images/abimanyu.png$1 [L,R=301]'
+```
+selanjutnya kita harus menambahkan konfigurasi pada `nano /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf`
+```
+<Directory /var/www/parikesit.abimanyu.b07>
+        Options +FollowSymLinks -Multiviews
+        AllowOverride All
+</Directory>
+```
+selanjutnya kita hanya perlu memeriksa dengan cara 
+```
+lynx parikesit.abimanyu.b07.com/public/images/cobadulu-abimanyu.png
+lynx parikesit.abimanyu.b07.com/public/images/abimanyu-hebat.jpg
+```
+hasilnya akan mengarah ke abimanyu.png
+<img width="538" alt="20 1" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/ed9b376b-12a1-4ba9-b770-bd80092adfd0">
 
+<img width="322" alt="20 2" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/d2958ee9-524a-4c19-9bd4-6a76404df528">
 
+<img width="675" alt="20 3" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/32af749e-97e7-4c12-864c-c6f8da045e28">
 
 
 
