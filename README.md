@@ -382,30 +382,217 @@ Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abim
 
 
 ### Solusi
+pertama tama kita melakukan install beberapa yang dibutuhkan dengan kode berikut
+```
+apt-get update && apt install nginx php php-fpm -y
+```
+```
+apt-get install wget -y
+```
+```
+apt-get install unzip -y
+```
+```
+apt-get install apache2 -y
+```
+
+kemudian kita membuat file pada `sites-available` untuk konfigurasi dns server
+
+```
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/abimanyu.b07.com.conf
+```
+
+kita melakukan edit pada file tersebut dengan konfigurasi yang dibutuhkan pada soal dengan
+```
+nano /etc/apache2/sites-available/abimanyu.b07.com.conf
+```
+
+dan isikan seperti pada gambar
+
+![img](image/11-1.png)
+
+kemudian kita melakukan command
+```
+a2ensite abimanyu.b07.com
+```
+```
+service apache2 restart
+```
+
+kemudian kita membuat directory yang akan diisi dengan website pada directory var/www
+```
+mkdir /var/www/abimanyu.b07
+```
+
+sebelum memindahkan pada folder yang sudah dibuat tersebut, kita melakukan download resource yang sudah disiapkan dengan command wget berikut
+```
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1a4V23hwK9S7hQEDEcv9FL14UkkrHc-Zc' -O abimanyu.b07.com.zip
+```
+
+lakukan download file tersebut pada root, agar file yang telah di download tidak hilang, dan tidak melakukan download ulang, kemudian lakukan unzip dengan
+```
+unzip abimanyu.b07.com
+```
+
+kemudian kita menjalankan command berikut untuk melakukan copy hasil download ke dalam folder web yang sudah kita buat
+```
+cp -v /root/abimanyu.yyy.com/* /var/www/abimanyu.b07/
+```
+
+kemudian kita lakukan coba melakukan akses pada client sadewa untuk menampilkan halaman dengan 
+```
+lynx www.abimanyu.b07.com
+```
+
+apabila keluar halaman seperti berikut, maka konfigurasi apache2 pada abimanyu sudah berhasil dilakukan
+
+![img](image/11-2.png)
 
 ---
 ## SOAL 12
 ### Pertanyaan
+Setelah itu ubahlah agar url www.abimanyu.yyy.com/index.php/home menjadi www.abimanyu.yyy.com/home.
 
 ### Solusi
+untuk kasus kali ini kita melakukan rewrite pada penulisan url, pertama tama kita menjalankan perintah rewrite dengan
+```
+a2enmod rewrite
+```
+
+kemudian kita lakukan restart pada apache2 dengan
+```
+service apache2 restart
+```
+
+kemudian kita membuat file .htaccess pada folder yang ingin kita rewrite
+```
+touch /var/www/abimanyu.b07/.htaccess
+```
+
+kemudian tuliskan pada file `.htaccess` seperti berikut
+
+![img](image/12-1.png)
+
+kemudian masukkan beberapa konfigurasi pada `/etc/apache2/sites-available/abimanyu.b07.com.conf` seperti berikut
+
+![img](image/12-2.png)
+
+kemudian apabila dapat di akses menggunakan
+
+```
+lynx www.abimanyu.yyy.com/home
+```
+akan muncul page sebagai berikut 
+
+![img](image/12-3.png)
 
 ---
 ## SOAL 13
 ### Pertanyaan
+Selain itu, pada subdomain www.parikesit.abimanyu.yyy.com, DocumentRoot disimpan pada /var/www/parikesit.abimanyu.yyy
 
 ### Solusi
+pertama tama kita membuat file configurasi pada `sites-available` dengan menggunakan command 
+```
+cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf
+```
+
+kemudian edit di dalam file tersebut menjadi seperti berikut 
+
+![img](image/13-1.png)
+
+kemudian kita melakukan ensite seperti berikut 
+```
+a2ensite parikesit.abimanyu.b07.com
+```
+
+kemudian kita lakukan restart pada apache2 dengan
+```
+service apache2 restart
+```
+
+kemudian kita membuat directory yang akan diisi dengan website pada directory var/www
+```
+mkdir /var/www/parikesit.abimanyu.b07
+```
+
+sebelum memindahkan pada folder yang sudah dibuat tersebut, kita melakukan download resource yang sudah disiapkan dengan command wget berikut
+```
+wget --no-check-certificate 'https://docs.google.com/uc?export=download&id=1LdbYntiYVF_NVNgJis1GLCLPEGyIOreS' -O parikesit.abimanyu.b07.com.zip
+```
+
+lakukan download file tersebut pada root, agar file yang telah di download tidak hilang, dan tidak melakukan download ulang, kemudian lakukan unzip dengan
+```
+unzip parikesit.abimanyu.b07.com
+```
+
+kemudian kita menjalankan command berikut untuk melakukan copy hasil download ke dalam folder web yang sudah kita buat
+```
+cp -v /root/abimanyu.yyy.com/* /var/www/parikesit.abimanyu.b07/
+```
+
+kemudian kita lakukan coba melakukan akses pada client sadewa untuk menampilkan halaman dengan 
+```
+lynx parikesit.abimanyu.b07.com
+```
+
+apabila keluar halaman seperti berikut, maka konfigurasi apache2 pada abimanyu sudah berhasil dilakukan
+
+![img](image/13-2.png)
 
 ---
 ## SOAL 14
 ### Pertanyaan
+Pada subdomain tersebut folder /public hanya dapat melakukan directory listing sedangkan pada folder /secret tidak dapat diakses (403 Forbidden).
 
 ### Solusi
+pertama, kita membuat folder `secret` di dalam `/var/www/parikesit.abimanyu.b07` dengan menggunakan perintah berikut beserta membuat file htmlnya karena file tidak ada atau tidak disediakan.
+```
+mkdir /var/www/parikesit.abimanyu.b07/secret
+```
+```
+touch /var/www/parikesit.abimanyu.b07/secret/secret.html
+```
+
+dan kita membuat isi dari `secret.html` secara sederhana sebagai berikut 
+
+![img](image/14-1.png)
+
+kemudian kita melakukan edit pada file konfigurasi di `/etc/apache2/sites-available/parikesit.abimanyu.b07.com.conf` dengan menambahkan sebagai berikut
+
+![img](image/14-2.png)
+
+karena yang diminta adalah public dapat melakukan listing namun pada secret tidak dapat melakukan listing sehingga akan muncul berikut apabila dilakukan akses pada secret
+
+![img](image/14-3.png)
+![img](image/14-4.png)
 
 ---
 ## SOAL 15
 ### Pertanyaan
+Buatlah kustomisasi halaman error pada folder /error untuk mengganti error kode pada Apache. Error kode yang perlu diganti adalah 404 Not Found dan 403 Forbidden.
 
 ### Solusi
+untuk nomor 15, kita hanya customisasi sedikit untuk ditambahkan pada konfigurasi, pertama akses pada `/etc/apache2/apache2.conf`
+
+dengan menggunakan 
+
+```
+nano /etc/apache2/apache2.conf
+```
+
+kemudian tambahkan seperti berikut pada barisnya
+
+```
+ErrorDocument 404 /error/404.html
+ErrorDocument 403 /error/403.html
+```
+
+![img](image/15-1.png)
+
+sehingga akan muncul error custom seperti pada nomor 14, atau seperti berikut
+
+![img](image/14-4.png)
 
 ---
 ## SOAL 16
