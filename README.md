@@ -1,5 +1,5 @@
-# Jarkom-Modul-1-B07-2023
-> Laporan Resmi Praktikum 1 Jaringan Komputer B07
+# Jarkom-Modul-2-B07-2023
+> Laporan Resmi Praktikum 2 Jaringan Komputer B07
 ***
 ## Anggota Kelompok B07
 1. I Gusti Ngurah Ervan Juli Ardana (5025211295)
@@ -101,7 +101,7 @@ Selanjutnya kami perlu melakukan restart bin dengan perintah : `service bind9 re
 Kemudian, karena terdapat beberapa web yang harus di-deploy, buatlah subdomain parikesit.abimanyu.yyy.com yang diatur DNS-nya di Yudhistira dan mengarah ke Abimanyu.
 
 ### Solusi
-pertama tama pada yudhistira, buka `nano /etc/bind/abimanyu/abimanyu.com` Tambahkan konfigurasi seperti berikut untuk menambahkan subdomain
+pertama tama pada yudhistira, buka `nano /etc/bind/abimanyu/abimanyu.b07.com` Tambahkan konfigurasi seperti berikut untuk menambahkan subdomain
 
 <img width="505" alt="parikesit" src="https://github.com/NgurahErvan/Jarkom-Modul-2-B07-2023/assets/114007640/86aa813b-2d0f-4422-8dc7-bb450d38b6b8">
 
